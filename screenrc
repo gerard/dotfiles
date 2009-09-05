@@ -1,0 +1,8 @@
+startup_message off
+shell -$SHELL
+autodetach on
+defhstatus "screen: ^En (^Et)"
+
+hardstatus alwayslastline
+hardstatus string '%{= kG}%-Lw%{= kW}%50> %n%f* %t%{= kG}%+Lw%< %{= kG}%-=%l'
+vbell off
