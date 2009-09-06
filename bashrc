@@ -88,7 +88,7 @@ fi
 export EDITOR="vim"
 export PATH="$HOME/bin:/usr/lib/ccache:$PATH"
 export DEBEMAIL="Gerard Lledó <gerard.lledo@gmail.com>"
-export PS1='work[$?]:\w [$(date +%H:%M)]\$ '
+export PS1='\h[$?]:\w [$(date +%H:%M)]\$ '
 
 . $HOME/.ssh/ssh-agent.run
 stty -ixon
