@@ -44,6 +44,8 @@ complete -F _jump jump
 EOF
 }
 
+# Clear before re-reading
+unset JUMP_HASH_TABLE
 __add_jump_head
 if [ -f $JUMP_CONF ]
 then
