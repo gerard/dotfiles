@@ -60,7 +60,10 @@ xterm*|rxvt*)
 esac
 
 # enable color support of ls
-[ "$TERM" != "dumb" ] && [ -x /usr/bin/dircolors ] && eval "`dircolors -b`"
+if [ "$TERM" != "dumb" ] && [ -x /usr/bin/dircolors ]; then
+	eval "`dircolors -b`"
+	alias ls='ls --color=auto'
+fi
 
 export EDITOR="vim"
 export PATH="$HOME/bin:/usr/lib/ccache:$PATH"
