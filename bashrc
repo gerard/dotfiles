@@ -71,11 +71,17 @@ export DEBEMAIL="Gerard Lledó <gerard.lledo@gmail.com>"
 export PS1='\h[$?]:\w [$(date +%H:%M)]\$ '
 export GDBHISTFILE="$HOME/.gdb_history"
 
-# Fix UTF-8 with putty
-echo -ne '\e%G\e[?47h\e%G\e[?47l'
-
-# Disable XON/XOFF
-stty -ixon
+case $- in
+*i*)
+    # Interactive shell
+    # Fix UTF-8 with putty and disable XON/XOFF
+    echo -ne '\e%G\e[?47h\e%G\e[?47l'
+    stty -ixon
+;;
+*)
+    # Non-interactive shell
+;;
+esac
 
 alias ll='ls -l'
 alias la='ls -A'
