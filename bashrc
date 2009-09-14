@@ -89,7 +89,16 @@ alias reload='source ~/.bashrc'
 alias editrc='vim ~/.bashrc'
 alias editrc_local='vim ~/.bashrc_local'
 
-[ -f $HOME/.ssh/ssh-agent.run ] && source $HOME/.ssh/ssh-agent.run
+# SSH Agent
+SSH_AGENT_RUN=$HOME/.ssh/ssh-agent.run
+if [ -f $HOME/.ssh/id_rsa -a -f `which ssh-agent` ] && ! killall -0 ssh-agent 2> /dev/null
+then
+    ssh-agent | grep -v echo > $SSH_AGENT_RUN
+    source $SSH_AGENT_RUN
+    ssh-add
+fi
+
+[ -f $SSH_AGENT_RUN ] && source $SSH_AGENT_RUN
 [ -f $HOME/.bashrc_local ] && source $HOME/.bashrc_local
 
 if [ -f /etc/bash_completion ]; then
