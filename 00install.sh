@@ -7,6 +7,10 @@ for file in $TO_INSTALL
 do
 	[ ! -e $file ] && continue
 	dest=$HOME/.$file
+
+    # If the files are the same, don't bother the user
+    diff $file $dest > /dev/null && continue
+
 	if [ -e $dest ]; then
 		echo -n "$dest already exists. Overwrite? (y/n) "
 		read answer
