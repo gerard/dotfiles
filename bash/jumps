@@ -25,7 +25,8 @@ unset __load_jump
 # Public functionality
 function jump {
     # If the parameter starts with a dash, get it and shift
-    [[ $1 == -* ]] && JMP_OP=$1 && shift
+    JUMP_OP="none"
+    [[ $1 == -* ]] && JUMP_OP=$1 && shift
     TAG=$1
 
     # If there is no tag parameter, assume the current basename
@@ -35,7 +36,7 @@ function jump {
     HASH_DEC=`bc <<< "ibase=16;$HASH_HEX"`
     JUMPTO=${JUMP_HASH_TABLE[$HASH_DEC]}
 
-    case "$JMP_OP" in
+    case "$JUMP_OP" in
     --add)
         [ ! -z "$JUMPTO" ] && echo "That jump already exists: $JUMPTO" && return 1
         echo "$TAG $PWD" >> $JUMP_CONF
@@ -46,7 +47,10 @@ function jump {
     --del|--help)
         echo "Not implemented"
         ;;
-    *)
+    --*)
+        echo "Unknown argument"
+        ;;
+    none)
         [ -z "$JUMPTO" ] && echo "No such jump" && return 1
         cd $JUMPTO
         ;;
