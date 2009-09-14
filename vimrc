@@ -38,6 +38,9 @@ set textwidth=79
 au! Syntax asciidoc set formatoptions=nwaroqt
 au! Syntax tex set formatoptions=nwaroqt
 
+set modeline
+set modelines=4
+
 " File completion mode
 set wildmode=list:longest,full
 
