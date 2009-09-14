@@ -66,7 +66,12 @@ export EDITOR="vim"
 export PATH="$HOME/bin:/usr/lib/ccache:$PATH"
 export DEBEMAIL="Gerard Lledó <gerard.lledo@gmail.com>"
 export PS1='\h[$?]:\w [$(date +%H:%M)]\$ '
+export GDBHISTFILE="$HOME/.gdb_history"
 
+# Fix UTF-8 with putty
+echo -ne '\e%G\e[?47h\e%G\e[?47l'
+
+# Disable XON/XOFF
 stty -ixon
 
 alias ll='ls -l'
@@ -74,6 +79,7 @@ alias la='ls -A'
 alias l='ls'
 alias week='date +%V'
 
+alias reload='source ~/.bashrc'
 alias editrc='vim ~/.bashrc'
 alias editrc_local='vim ~/.bashrc_local'
 
