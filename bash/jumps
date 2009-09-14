@@ -24,23 +24,31 @@ unset __load_jump
 
 # Public functionality
 function jump {
+    # If the parameter starts with a dash, get it and shift
+    [[ $1 == -* ]] && JMP_OP=$1 && shift
+    TAG=$1
+
+    # If there is no tag parameter, assume the current basename
+    [ -z "$TAG" ] && TAG=`basename $PWD`
+
     HASH_HEX=`md5sum - <<< $1 | dd bs=8 count=1 2> /dev/null | tr [:lower:] [:upper:]`
     HASH_DEC=`bc <<< "ibase=16;$HASH_HEX"`
     JUMPTO=${JUMP_HASH_TABLE[$HASH_DEC]}
 
-    [ -z "$JUMPTO" ] && echo "No such jump" && return 1
-    cd $JUMPTO
+    case "$JMP_OP" in
+    --add)
+        [ ! -z "$JUMPTO" ] && echo "That jump already exists: $JUMPTO" && return 1
+        echo "$TAG $PWD" >> $JUMP_CONF
+
+        # This is unoptimal, but reasonable: makes the changes visible
+        reload
+        ;;
+    --del|--help)
+        echo "Not implemented"
+        ;;
+    *)
+        [ -z "$JUMPTO" ] && echo "No such jump" && return 1
+        cd $JUMPTO
+        ;;
+    esac
 }
-
-function add_jump {
-    HASH_HEX=`md5sum - <<< $1 | dd bs=8 count=1 2> /dev/null | tr [:lower:] [:upper:]`
-    HASH_DEC=`bc <<< "ibase=16;$HASH_HEX"`
-    JUMPTO=${JUMP_HASH_TABLE[$HASH_DEC]}
-
-    [ ! -z "$JUMPTO" ] && echo "That jump already exists: $JUMPTO" && return 1
-    echo "$1 $PWD" >> $JUMP_CONF
-
-    # This is unoptimal, but reasonable: makes the changes visible
-    reload
-}
-set +x

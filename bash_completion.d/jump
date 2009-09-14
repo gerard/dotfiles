@@ -1,5 +1,6 @@
 # vim: set filetype=sh :
 
+ARGUMENTS="--add --del --help"
 JUMP_CONF="$HOME/.jumps"
 _jump() 
 {
@@ -7,11 +8,13 @@ _jump()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts=`awk '{ print $1 }' < $JUMP_CONF | tr '\n' ' '`
 
-    [ ${prev} != "jump" ] && return
+    [ $prev != "jump" ] && [[ $prev != -* ]] && return
+    [ $prev == "jump" ] && opts=$ARGUMENTS
 
-    COMPREPLY=( $(compgen -W "\${opts}" -- ${cur}) )
+    opts="$opts `awk '{ print $1 }' < $JUMP_CONF | tr '\n' ' '`"
+
+    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
     return 0
 }
 complete -F _jump jump
