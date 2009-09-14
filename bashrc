@@ -39,6 +39,9 @@ alias reload='source ~/.bashrc'
 alias editrc='vim ~/.bashrc'
 alias editrc_local='vim ~/.bashrc_local'
 
+# Jumps
+[ -f $HOME/.bash/jumps ] && source $HOME/.bash/jumps
+
 # SSH Agent
 SSH_AGENT_RUN=$HOME/.ssh/ssh-agent.run
 SSH_PRIVKEY=$HOME/.ssh/id_rsa

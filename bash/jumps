@@ -1,0 +1,75 @@
+# vim: set filetype=sh :
+
+# If there is bash_completion, we build the completions for our jumps
+JUMP_CONF="$HOME/.jumps"
+if [ -d $BASH_COMPLETION_LOCAL ]; then
+__JUMP_COMPLETION=$BASH_COMPLETION_LOCAL/jump
+else
+__JUMP_COMPLETION=/dev/null
+fi
+
+
+# Header for the completion script
+function __add_jump_head {
+    cat > $__JUMP_COMPLETION << EOF
+_jump() 
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="\${COMP_WORDS[COMP_CWORD]}"
+    prev="\${COMP_WORDS[COMP_CWORD-1]}"
+EOF
+    printf "\topts=\"" >> $__JUMP_COMPLETION
+}
+
+# This calculates the hash of the identifier and stores the jump
+function __add_jump {
+    echo -n "$1 " >> $__JUMP_COMPLETION
+    HASH_HEX=`md5sum - <<< $1 | dd bs=8 count=1 2> /dev/null | tr [:lower:] [:upper:]`
+    HASH_DEC=`bc <<< "ibase=16;$HASH_HEX"`
+    JUMP_HASH_TABLE[$HASH_DEC]=$2
+}
+
+# Footer of the completion script
+function __add_jump_tail {
+    echo "\"" >> $__JUMP_COMPLETION
+    cat >> $__JUMP_COMPLETION << EOF
+
+    COMPREPLY=( \$(compgen -W "\${opts}" -- \${cur}) )
+    return 0
+}
+complete -F _jump jump
+EOF
+}
+
+__add_jump_head
+[ -f $JUMP_CONF ] && source $JUMP_CONF
+__add_jump_tail
+
+unset __JUMP_COMPLETION
+unset __add_jump_head
+unset __add_jump_tail
+unset __add_jump
+
+
+# Public functionality
+function jump {
+    HASH_HEX=`md5sum - <<< $1 | dd bs=8 count=1 2> /dev/null | tr [:lower:] [:upper:]`
+    HASH_DEC=`bc <<< "ibase=16;$HASH_HEX"`
+    JUMPTO=${JUMP_HASH_TABLE[$HASH_DEC]}
+
+    [ -z "$JUMPTO" ] && echo "No such jump" && return 1
+    cd $JUMPTO
+}
+
+function add_jump {
+    HASH_HEX=`md5sum - <<< $1 | dd bs=8 count=1 2> /dev/null | tr [:lower:] [:upper:]`
+    HASH_DEC=`bc <<< "ibase=16;$HASH_HEX"`
+    JUMPTO=${JUMP_HASH_TABLE[$HASH_DEC]}
+
+    [ ! -z "$JUMPTO" ] && echo "That jump already exists: $JUMPTO" && return 1
+    echo "__add_jump $1 $PWD" >> $JUMP_CONF
+
+    # This is unoptimal, but reasonable: makes the changes visible
+    reload
+}
