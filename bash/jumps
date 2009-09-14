@@ -1,67 +1,25 @@
 # vim: set filetype=sh :
 
-# If there is bash_completion, we build the completions for our jumps
-JUMP_CONF="$HOME/.jumps"
-if [ -d $BASH_COMPLETION_LOCAL ]; then
-__JUMP_COMPLETION=$BASH_COMPLETION_LOCAL/jump
-else
-__JUMP_COMPLETION=/dev/null
-fi
-
-
-# Header for the completion script
-function __add_jump_head {
-    cat > $__JUMP_COMPLETION << EOF
-_jump() 
-{
-    local cur prev opts
-    COMPREPLY=()
-    cur="\${COMP_WORDS[COMP_CWORD]}"
-    prev="\${COMP_WORDS[COMP_CWORD-1]}"
-EOF
-    printf "\topts=\"" >> $__JUMP_COMPLETION
-}
-
+JUMP_CONF=$HOME/.jumps
 # This calculates the hash of the identifier and stores the jump
-function __add_jump {
-    echo -n "$1 " >> $__JUMP_COMPLETION
+function __load_jump {
     HASH_HEX=`md5sum - <<< $1 | dd bs=8 count=1 2> /dev/null | tr [:lower:] [:upper:]`
     HASH_DEC=`bc <<< "ibase=16;$HASH_HEX"`
     JUMP_HASH_TABLE[$HASH_DEC]=$2
 }
 
-# Footer of the completion script
-function __add_jump_tail {
-    echo "\"" >> $__JUMP_COMPLETION
-    cat >> $__JUMP_COMPLETION << EOF
-
-    [ \${prev} != "jump" ] && return
-
-    COMPREPLY=( \$(compgen -W "\${opts}" -- \${cur}) )
-    return 0
-}
-complete -F _jump jump
-EOF
-}
-
 # Clear before re-reading
 unset JUMP_HASH_TABLE
-__add_jump_head
 if [ -f $JUMP_CONF ]
 then
     while read LINE
     do
         TAG=`awk '{ print $1 }' <<< $LINE`
         JUMP=`awk '{ print $2 }' <<< $LINE`
-        __add_jump $TAG $JUMP
+        __load_jump $TAG $JUMP
     done < $JUMP_CONF
 fi
-__add_jump_tail
-
-unset __JUMP_COMPLETION
-unset __add_jump_head
-unset __add_jump_tail
-unset __add_jump
+unset __load_jump
 
 
 # Public functionality
@@ -85,3 +43,4 @@ function add_jump {
     # This is unoptimal, but reasonable: makes the changes visible
     reload
 }
+set +x
