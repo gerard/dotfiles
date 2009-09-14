@@ -35,6 +35,8 @@ function __add_jump_tail {
     echo "\"" >> $__JUMP_COMPLETION
     cat >> $__JUMP_COMPLETION << EOF
 
+    [ \${prev} != "jump" ] && return
+
     COMPREPLY=( \$(compgen -W "\${opts}" -- \${cur}) )
     return 0
 }
