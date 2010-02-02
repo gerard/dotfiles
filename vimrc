@@ -7,6 +7,8 @@ set ruler
 "let g:detectindent_preferred_expandtab = 1
 "let g:detectindent_preferred_indent = 4
 
+set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L] 
+
 " I rather use vim
 set nocompatible
 
@@ -21,6 +23,9 @@ au FileType asm setlocal noexpandtab
 au FileType asm setlocal ts=8
 au FileType asm setlocal sw=8
 au FileType asm setlocal softtabstop=8
+
+" File in the titlebar
+set title
 
 " Indenting
 " I like to do it myself...
@@ -52,15 +57,16 @@ set gdefault
 
 " Show the best match
 set incsearch
+set tags=$CTAGS_DB
 
 " Some mappings
-map <F2> :TlistToggle<CR>:set number<CR><Esc>
-map <F3> :make<CR><Esc>
-map <S-F3> :w<CR>:make<CR><Esc>
-map <F4> :cn<CR><Esc>
-map <F12> :q<CR><Esc>
-map <S-F12> :q!<CR><Esc>
-map <C-F12> :qa<CR><Esc>
+map <F2> :TlistToggle<CR>:set number!<CR><Esc>
+" map <F3> :make<CR><Esc>
+" map <S-F3> :w<CR>:make<CR><Esc>
+" map <F4> :cn<CR><Esc>
+" map <F12> :q<CR><Esc>
+" map <S-F12> :q!<CR><Esc>
+" map <C-F12> :qa<CR><Esc>
 
 " Window management
 map <F5> :split<CR><Esc>
@@ -70,7 +76,7 @@ map <F7> <C-W>w
 map <F8> gt
 
 map <F9> :set ts=8<CR><Esc>
-map <F11> @q
+map <F11> :A<CR><Esc>
 
 " Remove trailing whitespace
 map <F10> :%s/[ \t]*$//<CR><Esc>
@@ -80,42 +86,8 @@ map <S-Down> :res -2<CR><Esc>
 map <S-Right> :vertical res +4<CR><Esc>
 map <S-Left> :vertical res -4<CR><Esc>
 
-au BufRead *.txt call s:FTasciidoc()
 "au BufNewFile,BufRead *.txt  setfiletype asciidoc
 
-function! s:FTasciidoc()
-  let in_comment_block = 0
-  let n = 1
-  while n < 50
-    let line = getline(n)
-    let n = n + 1
-    if line =~ '^/\{4,}$'
-      if ! in_comment_block
-        let in_comment_block = 1
-      else
-        let in_comment_block = 0
-      endif
-      continue
-    endif
-    if in_comment_block
-      continue
-    endif
-    if line !~ '\(^//\)\|\(^\s*$\)'
-      break
-    endif
-  endwhile
-  if line !~ '.\{3,}'
-    return
-  endif
-  let len = len(line)
-  let line = getline(n)
-  if line !~ '[-=]\{3,}'
-    return
-  endif
-  if len < len(line) - 3 || len > len(line) + 3
-    return
-  endif
-  setfiletype asciidoc
-endfunction
-
+let Tlist_Exit_OnlyWindow = 1
+let Tlist_Use_Right_Window = 1
 

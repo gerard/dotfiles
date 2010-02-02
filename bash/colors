@@ -1,0 +1,40 @@
+COLOR_txtblk='\e[0;30m' # Black - Regular
+COLOR_txtred='\e[0;31m' # Red
+COLOR_txtgrn='\e[0;32m' # Green
+COLOR_txtylw='\e[0;33m' # Yellow
+COLOR_txtblu='\e[0;34m' # Blue
+COLOR_txtpur='\e[0;35m' # Purple
+COLOR_txtcyn='\e[0;36m' # Cyan
+COLOR_txtwht='\e[0;37m' # White
+COLOR_bldblk='\e[1;30m' # Black - Bold
+COLOR_bldred='\e[1;31m' # Red
+COLOR_bldgrn='\e[1;32m' # Green
+COLOR_bldylw='\e[1;33m' # Yellow
+COLOR_bldblu='\e[1;34m' # Blue
+COLOR_bldpur='\e[1;35m' # Purple
+COLOR_bldcyn='\e[1;36m' # Cyan
+COLOR_bldwht='\e[1;37m' # White
+COLOR_unkblk='\e[4;30m' # Black - Underline
+COLOR_undred='\e[4;31m' # Red
+COLOR_undgrn='\e[4;32m' # Green
+COLOR_undylw='\e[4;33m' # Yellow
+COLOR_undblu='\e[4;34m' # Blue
+COLOR_undpur='\e[4;35m' # Purple
+COLOR_undcyn='\e[4;36m' # Cyan
+COLOR_undwht='\e[4;37m' # White
+COLOR_bakblk='\e[40m'   # Black - Background
+COLOR_bakred='\e[41m'   # Red
+COLOR_badgrn='\e[42m'   # Green
+COLOR_bakylw='\e[43m'   # Yellow
+COLOR_bakblu='\e[44m'   # Blue
+COLOR_bakpur='\e[45m'   # Purple
+COLOR_bakcyn='\e[46m'   # Cyan
+COLOR_bakwht='\e[47m'   # White
+COLOR_txtrst='\e[0m'    # Text Reset
+
+function color_echo {
+    echo $1 | grep -e '^-' && OPTS=$1 && shift
+    echo -e $OPTS $1$2$COLOR_txtrst
+    unset OPTS
+    return 0
+}

@@ -1,5 +1,11 @@
 # vim: set filetype=sh :
 
+if [ $BASH_VERSINFO -lt 3 ] 
+then
+    # Ancient bash version, forget about this
+    return
+fi
+
 JUMP_CONF=$HOME/.jumps
 # This calculates the hash of the identifier and stores the jump
 function __load_jump {
