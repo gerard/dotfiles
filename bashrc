@@ -132,6 +132,7 @@ function vim {
 
 # Jumps
 [ -f $HOME/.bash/jumps ] && source $HOME/.bash/jumps
+[ -f $HOME/.bash/mssh ] && source $HOME/.bash/mssh
 
 # SSH Agent
 SSH_AGENT_RUN=$HOME/.ssh/ssh-agent.run

@@ -1,0 +1,64 @@
+# vim: set filetype=sh :
+
+function __mssh {
+    CONFIG_FILE=$HOME/.mssh
+    SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+    [ -z "$1" ] && echo "E: Usage: $CMD name" && return 1
+
+    while read CONFIG_LINE
+    do
+        HOST=`awk '{ print $2 }' <<< $CONFIG_LINE`
+        [ "$HOST" != "$1" ] && continue
+
+        IP=`awk '{ print $1 }' <<< $CONFIG_LINE`
+        USER=`awk '{ print $3 }' <<< $CONFIG_LINE`
+        PASS=`awk '{ print $4 }' <<< $CONFIG_LINE`
+        HOMEDIR=`awk '{ print $5 }' <<< $CONFIG_LINE`
+    done < $CONFIG_FILE
+
+    [ -z "$IP" ] && echo "E: No such name" && return 1
+
+    shift
+
+    if [ "$CMD" = "mssh" ]
+    then
+        expect -c "
+            set timeout 30
+            expect *
+            spawn ssh $SSH_OPTS $USER@$IP
+            expect {
+                -re \".assword\" { send \"$PASS\r\"; puts \"Sent\" }
+                -re . { exp_continue }
+            }
+            interact
+        "
+        return $?
+    fi
+
+    if [ "$CMD" = "mscp" ]
+    then
+        expect -c "
+            set timeout 30
+            expect *
+            spawn scp $SSH_OPTS $1 $USER@$IP:$HOMEDIR
+            expect {
+                -re \".assword\" { send \"$PASS\r\"; puts \"Sent\" }
+                -re . { exp_continue }
+            }
+            interact
+        "
+        return $?
+    fi
+
+    echo "E: Unknown command!"
+    return 1
+}
+
+function mssh {
+    CMD=mssh __mssh $*
+}
+
+function mscp {
+    CMD=mscp __mssh $*
+}
