@@ -1,4 +1,4 @@
-export PATH="$HOME/bin:/usr/lib/ccache:$PATH"
+export PATH="$HOME/bin:$HOME/.bin:/usr/lib/ccache:$PATH"
 export ROOT_LOCAL=$HOME/local
 export ORIG_PATH=$PATH
 

@@ -1,21 +1,29 @@
 # vim: set filetype=sh :
 
-MSSH_CONF="$HOME/.mssh"
+MSSH_CONFIG_FILE="$HOME/.mssh"
 _mssh() 
 {
     local cur prev opts
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
+    [ $COMP_CWORD -gt 1 ] && prev2="${COMP_WORDS[COMP_CWORD-2]}"
 
-    if [ $prev = "mssh" -o $prev = "mscp" ] ; then
-        opts="$opts `awk '{ print $2 }' < $MSSH_CONF | tr '\n' ' '`"
+    if [ "$prev" = "mssh" -o "$prev" = "mscpget" -o "$prev" = "mscpput" ] ; then
+        opts="$opts `awk '{ print $2 }' < $MSSH_CONFIG_FILE | tr '\n' ' '`"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
 
-    return 0
+    if [ "$prev2" = "mscpget" ] ; then
+        opts=`mssh $prev ls -a1d $cur'\*' | tr -d '\r'`
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+    fi
+
+    return 1
 }
-complete -o default -F _mssh mscp
+complete -o default -F _mssh mscpget
+complete -o default -F _mssh mscpput
 complete -F _mssh mssh
 
