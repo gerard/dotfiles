@@ -24,6 +24,7 @@ function __mssh_get_conf_for_host {
 }
 
 function __mssh_expect_run {
+    echo "Running $@"
     expect -c "
         log_user 0
         set timeout 30
@@ -60,7 +61,7 @@ function __cmd_mscpput {
     REMOTEDIR=$2
 
     [ -z "$FILE" ] && echo "E: Usage: mscpget host localfile [remotedir]" && return 1
-    [ -z "$LOCALDIR" ] && REMOTEDIR=~
+    [ -z "$LOCALDIR" ] && REMOTEDIR='~'
 
     __mssh_expect_run scp $MSSH_OPTS -r $FILE $MSSH_USER@$MSSH_IP:$REMOTEDIR
 }
