@@ -32,10 +32,13 @@ HOST=`hostname | cut -d. -f1`
 echo -ne '\e%G\e[?47h\e%G\e[?47l'
 stty -ixon
 
+__parse_git_branch() {
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/:\1/'
+}
 export EDITOR="vim"
 export GIT_EDITOR="$EDITOR"
 export DEBEMAIL="Gerard Lledó <gerard.lledo@gmail.com>"
-export PS1='\h[$?]:\w [$(date +%H:%M)]\$ '
+export PS1='\h[$?]$(__parse_git_branch):\w [$(date +%H:%M)]\$ '
 export GDBHISTFILE="$HOME/.gdb_history"
 export BASH_COMPLETION_LOCAL="$HOME/.bash_completion.d"
 
