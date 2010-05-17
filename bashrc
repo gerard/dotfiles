@@ -32,9 +32,26 @@ HOST=`hostname | cut -d. -f1`
 echo -ne '\e%G\e[?47h\e%G\e[?47l'
 stty -ixon
 
-__parse_git_branch() {
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/:\1/'
+# Eventually I need to use this so when testing my fuse app I don't get more FS
+# reads than necessary for each prompt line.
+ps1_git_branch() {
+    if [ "$1" == "on"  ]
+    then
+        function __parse_git_branch() {
+            git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/:\1/'
+        }
+    fi
+
+    if [ "$1" == "off" ]
+    then
+        function __parse_git_branch() {
+            true
+        }
+    fi
 }
+
+ps1_git_branch on
+
 export EDITOR="vim"
 export GIT_EDITOR="$EDITOR"
 export DEBEMAIL="Gerard Lledó <gerard.lledo@gmail.com>"
