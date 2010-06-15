@@ -42,9 +42,9 @@ function __mssh_expect_run {
 
 function __cmd_mssh {
     REMOTE_CMD=$@
-    echo -en "\ek$MSSH_HOST\e\\"
+    [ $TERM == "screen" ] && echo -en "\ek$MSSH_HOST\e\\"
     __mssh_expect_run ssh $MSSH_OPTS $MSSH_USER@$MSSH_IP $REMOTE_CMD
-    echo -en "\ekbash\e\\"
+    [ $TERM == "screen" ] && echo -en "\ekbash\e\\"
 }
 
 function __cmd_mscpget {
