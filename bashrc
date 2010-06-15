@@ -183,6 +183,9 @@ then
     source $GIT_COMPLETION
 fi
 
+# Remove broken gdb completion
+complete -r gdb
+
 # User bash completion
 if [ -d $BASH_COMPLETION_LOCAL -a $BASH_VERSINFO -ge 3 ]
 then
