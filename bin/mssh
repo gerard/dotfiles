@@ -10,9 +10,10 @@ MSSH_HOMEDIR=
 function __mssh_get_conf_for_host {
     while read CONFIG_LINE
     do
-        HOST=`awk '{ print $2 }' <<< $CONFIG_LINE`
-        [ "$HOST" != "$1" ] && continue
+        __HOST=`awk '{ print $2 }' <<< $CONFIG_LINE`
+        [ "$__HOST" != "$1" ] && continue
 
+        MSSH_HOST=$__HOST
         MSSH_IP=`awk '{ print $1 }' <<< $CONFIG_LINE`
         MSSH_USER=`awk '{ print $3 }' <<< $CONFIG_LINE`
         MSSH_PASS=`awk '{ print $4 }' <<< $CONFIG_LINE`
@@ -24,7 +25,6 @@ function __mssh_get_conf_for_host {
 }
 
 function __mssh_expect_run {
-    echo "Running $@"
     expect -c "
         log_user 0
         set timeout 30
@@ -42,7 +42,9 @@ function __mssh_expect_run {
 
 function __cmd_mssh {
     REMOTE_CMD=$@
+    echo -en "\ek$MSSH_HOST\e\\"
     __mssh_expect_run ssh $MSSH_OPTS $MSSH_USER@$MSSH_IP $REMOTE_CMD
+    echo -en "\ekbash\e\\"
 }
 
 function __cmd_mscpget {
