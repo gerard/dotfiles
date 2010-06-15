@@ -66,6 +66,9 @@ alias la='ls -A'
 alias l='ls'
 alias week='date +%V'
 alias mutt-local='mutt -F /dev/null'
+function settabname {
+    [ $TERM = "screen" ] && echo -ne "\ek$1\e\\"
+}
 
 # Useful to avoid verbose output on scripts
 alias spushd='pushd > /dev/null'
