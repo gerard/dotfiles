@@ -67,7 +67,12 @@ alias l='ls'
 alias week='date +%V'
 alias mutt-local='mutt -F /dev/null'
 function settabname {
-    [ $TERM = "screen" ] && echo -ne "\ek$1\e\\"
+    SET_TO=$1
+
+    [ $TERM != "screen" ] && return 0
+    [ $# -eq 0 ] && SET_TO=`basename $SHELL`
+
+    echo -ne "\ek$SET_TO\e\\"
 }
 
 # Useful to avoid verbose output on scripts
