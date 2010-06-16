@@ -59,6 +59,14 @@ set gdefault
 set incsearch
 set tags=$CTAGS_DB
 
+function Toogle_ts()
+    if &ts == 8
+        set ts=4
+    else
+        set ts=8
+    endif
+endfunction
+
 " Some mappings
 map <F2> :TlistToggle<CR>:set number!<CR><Esc>
 " map <F3> :make<CR><Esc>
@@ -75,7 +83,7 @@ map <F6> :tab split<CR><Esc>
 map <F7> <C-W>w
 map <F8> gt
 
-map <F9> :set ts=8<CR><Esc>
+map <F9> :call Toogle_ts()<CR><Esc>
 map <F11> :A<CR><Esc>
 
 " Remove trailing whitespace
