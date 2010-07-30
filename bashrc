@@ -102,6 +102,8 @@ then
             ;;
         diff)
             DIFF_CMD="diff"
+            which colordiff && DIFF_CMD="colordiff"
+            shift
             $REAL_SVN diff --diff-cmd=$DIFF_CMD $* | less -R
             ;;
         *)
