@@ -4,7 +4,7 @@ export ORIG_PATH=$PATH
 
 if [ -d $ROOT_LOCAL ]
 then
-    export PATH="$ROOT_LOCAL/bin:$PATH"
+    export PATH="$ROOT_LOCAL/sbin:$ROOT_LOCAL/bin:$PATH"
     export PERL5LIB=$ROOT_LOCAL/lib/perl5
 fi
 
