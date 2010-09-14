@@ -40,8 +40,9 @@ set hlsearch
 set formatoptions-=t
 set formatoptions=
 set textwidth=79
-au! Syntax asciidoc set formatoptions=nwaroqt
+"au! Syntax asciidoc set formatoptions=nwaroqt
 au! Syntax tex set formatoptions=nwaroqt
+au! BufNewFile,BufRead *.d set syntax=catapult
 
 set modeline
 set modelines=4
@@ -69,6 +70,7 @@ endfunction
 
 " Some mappings
 map <F2> :TlistToggle<CR>:set number!<CR><Esc>
+map <F1> :NERDTreeToggle<CR><Esc>
 " map <F3> :make<CR><Esc>
 " map <S-F3> :w<CR>:make<CR><Esc>
 " map <F4> :cn<CR><Esc>
@@ -80,8 +82,8 @@ map <F2> :TlistToggle<CR>:set number!<CR><Esc>
 map <F5> :split<CR><Esc>
 map <S-F5> :vsplit<CR><Esc>
 map <F6> :tab split<CR><Esc>
-map <F7> <C-W>w
-map <F8> gt
+"map <F7> <C-W>w
+"map <F8> gt
 
 map <F9> :call Toogle_ts()<CR><Esc>
 map <F11> :A<CR><Esc>
@@ -101,3 +103,6 @@ let Tlist_Use_Right_Window = 1
 
 autocmd FileType c set omnifunc=ccomplete#Complete
 "let g:SuperTabDefaultCompletionType = "<C-X><C-O>"
+
+" Don't display these kinds of files
+let NERDTreeIgnore=[ '\.pyc$', '\.o$', '\.a$', '\.so$', '^\.git$' ]

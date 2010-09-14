@@ -37,7 +37,6 @@ if has("cscope")
     " if you want the reverse search order.
     set csto=0
 
-    " add any cscope database in current directory
     if filereadable("cscope.out")
         cs add cscope.out  
     " else add the database pointed to by environment variable 
@@ -97,6 +96,8 @@ if has("cscope")
     nmap <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
     nmap <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>	
 
+    nmap <F3> :cs find s <C-R>=expand("<cword>")<CR><CR>
+    nmap <F4> :cs find g <C-R>=expand("<cword>")<CR><CR>
 
     " Using 'CTRL-spacebar' (intepreted as CTRL-@ by vim) then a search type
     " makes the vim window split horizontally, with search result displayed in
@@ -130,6 +131,9 @@ if has("cscope")
     nmap <C-@><C-@>f :vert scs find f <C-R>=expand("<cfile>")<CR><CR>	
     nmap <C-@><C-@>i :vert scs find i ^<C-R>=expand("<cfile>")<CR>$<CR>	
     nmap <C-@><C-@>d :vert scs find d <C-R>=expand("<cword>")<CR><CR>
+
+    nmap z<F3> :vert scs find s <C-R>=expand("<cword>")<CR><CR>
+    nmap z<F4> :vert scs find g <C-R>=expand("<cword>")<CR><CR>
 
 
     """"""""""""" key map timeouts
