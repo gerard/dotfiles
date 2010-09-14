@@ -106,3 +106,5 @@ autocmd FileType c set omnifunc=ccomplete#Complete
 
 " Don't display these kinds of files
 let NERDTreeIgnore=[ '\.pyc$', '\.o$', '\.a$', '\.so$', '^\.git$' ]
+
+nmap <silent> <esc><esc> :nohlsearch<cr>
