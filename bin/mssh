@@ -6,6 +6,7 @@ MSSH_IP=
 MSSH_USER=
 MSSH_PASS=
 MSSH_HOMEDIR=
+MSSH_PROFILE=
 
 function __mssh_get_conf_for_host {
     while read CONFIG_LINE
@@ -18,6 +19,7 @@ function __mssh_get_conf_for_host {
         MSSH_USER=`awk '{ print $3 }' <<< $CONFIG_LINE`
         MSSH_PASS=`awk '{ print $4 }' <<< $CONFIG_LINE`
         MSSH_HOMEDIR=`awk '{ print $5 }' <<< $CONFIG_LINE`
+        MSSH_PROFILE=$HOME/.mssh_profiles/$MSSH_HOST
     done < $MSSH_CONFIG_FILE
 
     [ -z "$MSSH_IP" ] && echo "E: No such host" && return 1
@@ -25,7 +27,7 @@ function __mssh_get_conf_for_host {
 }
 
 function __mssh_expect_run {
-    expect -c "
+    EXPECT_CMDS="
         log_user 0
         set timeout 30
         expect *
@@ -35,7 +37,23 @@ function __mssh_expect_run {
             -re . { exp_continue }
         }
         expect \n
-        log_user 1
+        log_user 0
+    "
+
+    if [ -f $MSSH_PROFILE ]
+    then
+        while read LINE
+        do
+            EXPECT_CMDS="
+                $EXPECT_CMDS
+                send \"$LINE\n\"
+                expect \n
+            "
+        done < $MSSH_PROFILE
+    fi
+
+    expect -c "
+        $EXPECT_CMDS
         interact
     "
 }
