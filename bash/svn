@@ -1,0 +1,30 @@
+# vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 filetype=sh
+
+# To relieve the pain of using SVN
+if which svn > /dev/null
+then
+    REAL_SVN=`which svn`
+    function svn {
+        case $1 in
+        clean)
+            $REAL_SVN status | grep ^? | tr -s ' ' | cut -d\  -f2- | xargs -d \\n rm -rf
+            ;;
+        log)
+            $REAL_SVN $* | less
+            ;;
+        blame)
+            $REAL_SVN $* | less
+            ;;
+        diff)
+            DIFF_CMD="diff"
+            which colordiff > /dev/null && DIFF_CMD="colordiff"
+            shift
+            $REAL_SVN diff --diff-cmd=$DIFF_CMD $* | less -R
+            ;;
+        *)
+            $REAL_SVN $*
+            ;;
+        esac
+    }
+fi
+

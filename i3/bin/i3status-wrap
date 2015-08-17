@@ -1,0 +1,48 @@
+#!/bin/bash
+# vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
+
+# TODO: Would be nice to account for the ZFS ARC cache as well
+function ram_levels {
+    TOTAL_MEM=$(free -m | grep ^Mem | awk '{ print $2 }')
+    USED_MEM=$(free -m | grep ^Mem | awk '{ print $3 }')
+    USED_NOBUF_MEM=$(free -m | grep buffers\/ | awk '{ print $3 }')
+    ZFS_ARC_USED=$(($(cat /proc/spl/kstat/zfs/arcstats | grep ^size | awk '{ print $3 }') / (1024 * 1024)))
+
+    USED_NOBUF_NOARC_MEM=$(($USED_NOBUF_MEM - $ZFS_ARC_USED))
+
+    echo -n "RAM"
+    echo -n  "$(echo "scale=3;$USED_NOBUF_NOARC_MEM/$TOTAL_MEM" | bc)"
+    echo -n ":$(echo "scale=3;$USED_NOBUF_MEM/$TOTAL_MEM" | bc)"
+    echo -n ":$(echo "scale=3;$USED_MEM/$TOTAL_MEM" | bc)"
+    echo
+}
+
+function swp_levels {
+    TOTAL_SWP=$(free -m | grep ^Swap | awk '{ print $2 }')
+    USED_SWP=$(free -m | grep ^Swap | awk '{ print $3 }')
+
+    echo "SWP"$(echo "scale=3;$USED_SWP/$TOTAL_SWP" | bc)
+}
+
+function i3status_prepend {
+    read line && echo $line && read line && echo $line && while :
+    do
+        read line
+        
+        APPEND="[{ \"full_text\": \"$($1)\" },"
+        echo "${line/[/$APPEND}" || exit 1
+    done
+}
+
+function unread_mail {
+    cd $HOME/mail/INBOX
+    OLD_UNREAD=$(find cur -type f | cut -d, -f3 | grep -v S | wc -l)
+    NEW_UNREAD=$(find new -type f | wc -l)
+
+    echo -n "MAIL:$NEW_UNREAD/$(($OLD_UNREAD + $NEW_UNREAD))"
+}
+
+i3status | i3status_prepend "swp_levels" \
+         | i3status_prepend "ram_levels" \
+         | i3status_prepend "unread_mail"
+

@@ -261,3 +261,5 @@ defhstatus "screen: ^En (^Et)"
 hardstatus alwayslastline
 hardstatus string '%{= kG}%-Lw%{= kW}%50> %n%f* %t%{= kG}%+Lw%< %{= kG}%-=%l'
 vbell off
+
+defscrollback 50000

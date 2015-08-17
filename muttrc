@@ -1,0 +1,32 @@
+set folder="~/mail"
+set header_cache=~/.mutt/cache/headers
+set message_cachedir=~/.mutt/cache/bodies
+set spoolfile="+INBOX"
+
+# Stuff that changes across machines (home/work address)
+source ~/.muttrc_local
+
+set sendmail="/usr/bin/msmtp"
+
+set timeout=10
+
+set pager_index_lines = 12
+set sidebar_width = 32
+
+bind index \CP sidebar-prev
+bind index \CN sidebar-next
+bind index \CO sidebar-open
+bind pager \CP sidebar-prev
+bind pager \CN sidebar-next
+bind pager \CO sidebar-open
+
+set sidebar_visible = no
+macro index b '<enter-command>toggle sidebar_visible<enter><refresh>'
+macro pager b '<enter-command>toggle sidebar_visible<enter><redraw-screen>'
+macro index G '<shell-escape>echo -n "Syncing mail..."; mbsync -qq -a<enter><redraw-screen>'
+
+auto_view text/html
+alternative_order text/plain text/enriched text/html
+
+# Colors!
+color index brightwhite default ~N

@@ -1,0 +1,46 @@
+# vim: filetype=sh tabstop=4 expandtab shiftwidth=4 softtabstop=4
+# I guess this is my IDE implementation...
+
+function vim {
+    REAL_VIM=$(which vim)
+    [ -z "$REAL_VIM" ] && echo "E: No vim installed, use vi?" && return 1
+    GIT_ROOT_DIRECTORY=$(git rev-parse --show-toplevel 2> /dev/null)
+    CSCOPE_DB=$GIT_ROOT_DIRECTORY/.git/cscope.out $REAL_VIM "$@"
+}
+
+function cscope-update {
+    # TODO: Would be nice to find a better solution for OLDPWD
+    local OLDPWD_STORE=$OLDPWD
+    GIT_ROOT_DIRECTORY=$(git rev-parse --show-toplevel 2> /dev/null)
+    if [ -n "$GIT_ROOT_DIRECTORY" ]
+    then
+        pushd $GIT_ROOT_DIRECTORY/.git > /dev/null
+        cscope -Rqb -s$GIT_ROOT_DIRECTORY
+        popd > /dev/null
+    else
+        echo "W: No repo here"
+    fi
+    OLDPWD=$OLDPWD_STORE
+}
+
+function cscope-git {
+    GIT_ROOT_DIRECTORY=$(git rev-parse --show-toplevel 2> /dev/null)
+    if [ -n "$GIT_ROOT_DIRECTORY" ]
+    then
+        pushd $GIT_ROOT_DIRECTORY/.git > /dev/null
+        cscope -Rd $GIT_ROOT_DIRECTORY
+        popd > /dev/null
+    else
+        echo "W: No repo here"
+    fi
+}
+
+function git {
+    local REAL_GIT=$(which git)
+    if [ "$1" = "cd" ]
+    then
+        cd $(git rev-parse --show-toplevel 2> /dev/null)
+    else
+        $REAL_GIT "$@"
+    fi
+}

@@ -1,18 +1,17 @@
-export PATH="$HOME/bin:$HOME/.bin:/usr/lib/ccache:$PATH"
-export ROOT_LOCAL=$HOME/local
-export ORIG_PATH=$PATH
-
-if [ -d $ROOT_LOCAL ]
-then
-    export PATH="$ROOT_LOCAL/sbin:$ROOT_LOCAL/bin:$PATH"
-    export PERL5LIB=$ROOT_LOCAL/lib/perl5
-fi
+# vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
 
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
 # don't put duplicate lines in the history and ignore same successive entries
 export HISTCONTROL=ignoredups:ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=100000
+HISTFILESIZE=200000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -38,7 +37,12 @@ ps1_git_branch() {
     if [ "$1" == "on"  ]
     then
         function __parse_git_branch() {
-            git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/:\1/'
+            # Notice the 3rd sed expression that shortens branch names that
+            # start with a number and an underscore.
+            git branch 2> /dev/null | sed -e '/^[^*]/d' \
+                                          -e 's/* \(.*\)/\1/' \
+                                          -e 's/^\([1-9][0-9]*\)_.*/\1/' \
+                                          -e 's/^\(.*\)/:\1/'
         }
     fi
 
@@ -52,10 +56,14 @@ ps1_git_branch() {
 
 ps1_git_branch on
 
+# Needed for PS1
+[ -f $HOME/.bash/colors ] && source $HOME/.bash/colors
+
 export EDITOR="vim"
 export GIT_EDITOR="$EDITOR"
 export DEBEMAIL="Gerard Lledó <gerard.lledo@gmail.com>"
-export PS1='\h[$?]$(__parse_git_branch):\w [$(date +%H:%M)]\$ '
+export PS1="$(ps1_color_echo $COLOR_txtgrn \\h)"'[$?]$(__parse_git_branch):\w [$(date +%H:%M)]\$ '
+
 export GDBHISTFILE="$HOME/.gdb_history"
 export BASH_COMPLETION_LOCAL="$HOME/.bash_completion.d"
 
@@ -85,97 +93,25 @@ alias reload="pushd $HOME > /dev/null && source ~/.bashrc && popd > /dev/null"
 alias editrc='vim ~/.bashrc'
 alias editrc_local='vim ~/.bashrc_local'
 
-# To relieve the pain of using SVN
-if which svn > /dev/null
-then
-    REAL_SVN=`which svn`
-    function svn {
-        case $1 in
-        clean)
-            $REAL_SVN status | grep ^? | tr -s ' ' | cut -d\  -f2- | xargs -d \\n rm -rf
-            ;;
-        log)
-            $REAL_SVN $* | less
-            ;;
-        blame)
-            $REAL_SVN $* | less
-            ;;
-        diff)
-            DIFF_CMD="diff"
-            which colordiff > /dev/null && DIFF_CMD="colordiff"
-            shift
-            $REAL_SVN diff --diff-cmd=$DIFF_CMD $* | less -R
-            ;;
-        *)
-            $REAL_SVN $*
-            ;;
-        esac
-    }
-fi
-
-# We use this to find the closest cscope.out
-function vim {
-    REALVIMARGS="$*"
-
-    # Skip parameters to vim
-    while [[ $1 =~ '^\+' ]] || [[ $1 =~ '^\-' ]]
-    do
-        shift
-    done
-
-    FILEDIR=$PWD
-    [ -n "$1" ] && FILEDIR=$FILEDIR/`dirname $1`
-
-    REALVIM=`which vim`
-
-    # Maybe add a check so we don't do this for files that are not indexed
-    # using cscope?
-
-    # Iterate from the current directory to the root.  We miss /cscope.out,
-    # which is not that common (or sane) place to store it.
-    DIR=$FILEDIR
-    while [ -z "$CSCOPE_DB" ] && [ $DIR != "/" ]
-    do
-        if [ -e $DIR/cscope.out ]
-        then
-            export CSCOPE_DB=$DIR/cscope.out
-            break
-        fi
-        DIR=`dirname $DIR`
-    done
-    echo "[$$] Using cscope: $CSCOPE_DB"
-
-    # Same thing for ctags
-    DIR=$FILEDIR
-    while [ $DIR != "/" ]
-    do
-        if [ -e $DIR/tags ]
-        then
-            export CTAGS_DB=$DIR/tags
-            break
-        fi
-        DIR=`dirname $DIR`
-    done
-    echo "[$$] Using ctags:  $CTAGS_DB"
-
-    $REALVIM $REALVIMARGS
-}
-
 # Jumps
 [ -f $HOME/.bash/jumps ] && source $HOME/.bash/jumps
 [ -f $HOME/.bash/mssh ] && source $HOME/.bash/mssh
+[ -f $HOME/.bash/ide ] && source $HOME/.bash/ide
 
-# SSH Agent
-SSH_AGENT_RUN=$HOME/.ssh/ssh-agent.run
-SSH_PRIVKEY=$HOME/.ssh/id_rsa
-if [ -f $SSH_PRIVKEY ] && which ssh-agent > /dev/null && ! killall -0 ssh-agent 2> /dev/null
+# Only load this if we actually have subversion installed
+if which svn > /dev/null
 then
-    ssh-agent | grep -v echo > $SSH_AGENT_RUN
-    source $SSH_AGENT_RUN
-    ssh-add
+    [ -f $HOME/.bash/svn ] && source $HOME/.bash/svn
 fi
 
-[ -f "$SSH_AGENT_RUN" ] && source $SSH_AGENT_RUN
+if which keychain > /dev/null
+then
+    keychain -q
+    . ~/.keychain/$HOSTNAME-sh
+    . ~/.keychain/$HOSTNAME-sh-gpg
+else
+    echo "W: keychain is not installed.  No sane ssh-agent support available."
+fi
 
 # Machine specific .bashrc (optionally) in another file
 [ -f $HOME/.bashrc_local ] && source $HOME/.bashrc_local
@@ -186,16 +122,6 @@ then
     source /etc/bash_completion
 fi
 
-# TODO: Figure out what the have command is (ie, used in debconf completion)
-GIT_COMPLETION=/etc/bash_completion.d/git
-if [ -f $GIT_COMPLETION ]
-then
-    source $GIT_COMPLETION
-fi
-
-# Remove broken gdb completion
-complete -r gdb
-
 # User bash completion
 if [ -d $BASH_COMPLETION_LOCAL -a $BASH_VERSINFO -ge 3 ]
 then
@@ -205,6 +131,19 @@ then
     done
 fi
 
+### PATHADD STARTING ###
+function pathadd {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        PATH="${PATH:+"$PATH:"}$1"
+    fi
+}
+
+pathadd "$HOME/bin"
+pathadd "/usr/lib/ccache"
+
+[ -f $HOME/.bashrc_local_pathadd ] && . $HOME/.bashrc_local_pathadd
+unset pathadd
+### PATHADD ENDING: No more PATH modification ###
+
 # Clean up $OLDPWD
-cd
-cd
+OLDPWD=$HOME

@@ -38,3 +38,10 @@ function color_echo {
     unset OPTS
     return 0
 }
+
+function ps1_color_echo {
+    echo $1 | grep -e '^-' && OPTS=$1 && shift
+    echo -e $OPTS \\[$1\\]$2\\[$COLOR_txtrst\\]
+    unset OPTS
+    return 0
+}
